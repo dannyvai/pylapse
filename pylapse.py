@@ -17,13 +17,13 @@ def init_cam(device_id,width,height):
 #height - the image height in pixels
 #width - the image width in pixels
 #######
-def start_timelapse(fps,video_time,event_duration,cam_idx,height,width) :
+def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_dir) :
 
     cam = init_cam(cam_idx,width,height)
     timelapse_sleep  = float(event_duration) /  float(fps * video_time) 
     idx = 1
     max_frame_id = event_duration / timelapse_sleep
-    image_name_format = "%c0%dd.png" % ('%',len(str(max_frame_id)))
+    image_name_format = "%s/%c0%dd.png" % (output_dir,'%',len(str(max_frame_id)))
     tic = time.time()
     while idx < max_frame_id:
         s, img_rgb = cam.read()
@@ -32,11 +32,12 @@ def start_timelapse(fps,video_time,event_duration,cam_idx,height,width) :
         time.sleep(timelapse_sleep)
         idx = idx + 1
 
+        #debug print to see some progress
         if time.time() - tic > 5:
             print 'created %d images out of %d' %(idx,max_frame_id)
             tic = time.time()
             
-    os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p out.mp4' % (fps,image_name_format))
+    os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p %s/%d.mp4' % (fps,image_name_format,output_dir,int(time.time())))
 
 def preview_cam(cam_idx,height,width):
     cam = init_cam(cam_idx,width,height)
@@ -85,9 +86,17 @@ def main():
     parser.add_option("-e", "--event-duration",
                       default=120,
                       help="event duration (how much time the event is going to take)")
+    parser.add_option("-o", "--output-dir",
+                      default='./',
+                      help="the folder it would create the images and the video")
 
 
     (options, args) = parser.parse_args()
+    
+    output_dir = options.output_dir    
+    if os.path.isdir(output_dir) == False:
+        print "%s doesn't exist please choose another folder" % output_dir
+        exit(0)
 
     cam_idx = int(options.cam_idx)
     height = int(options.height)
@@ -95,11 +104,12 @@ def main():
     
     if bool(options.preview):
         preview_cam(cam_idx,height,width)
+        
     elif bool(options.timelapse):
         fps = int(options.fps)
         video_duration = int(options.video_duration)
         event_duration = int(options.event_duration)
-        start_timelapse(fps,video_duration,event_duration,cam_idx,height,width)
+        start_timelapse(fps,video_duration,event_duration,cam_idx,height,width,output_dir)
         
 if __name__ == "__main__":
     main()
