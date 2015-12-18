@@ -14,15 +14,18 @@ def init_cam(device_id,width,height):
 # fps - the fps of the output movie (hz)
 #video_duration - the length of the output movie (sec)
 #event_duration - the duration of the event that you want to capture (sec)
+#cam_idx - the camera idx (if only one camera it should be  0)
+#height - the image height in pixels
+#width - the image width in pixels
 #######
-def start_timelapse(fps,video_time,event_duration) :
+def start_timelapse(fps,video_time,event_duration,cam_idx,height,width) :
 
-    cam = init_cam(0,1280,720)
+    cam = init_cam(cam_idx,width,height)
     timelapse_sleep  = float(event_duration) /  float(fps * video_time) 
     idx = 1
     max_frame_id = event_duration / timelapse_sleep
     image_name_format = "%c0%dd.png" % ('%',len(str(max_frame_id)))
-
+    tic = time.time()
     while idx < max_frame_id:
         s, img_rgb = cam.read()
         img_name = image_name_format % idx
@@ -30,7 +33,11 @@ def start_timelapse(fps,video_time,event_duration) :
         time.sleep(timelapse_sleep)
         idx = idx + 1
 
-    os.system('./create_timelapse_video.sh %d %s' % (fps,image_name_format))
+        if time.time() - tic > 5:
+            print 'created %d images out of %d' %(idx,max_frame_id)
+            tic = time.time()
+            
+    os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p out.mp4' % (fps,image_name_format))
 
 def preview_cam(cam_idx,height,width):
     cam = init_cam(cam_idx,width,height)
@@ -63,19 +70,22 @@ def main():
             width = int(sys.argv[4])
             preview_cam(cam_idx,height,width)
             
-        if sys.argv[1] == "timelapse" and len(sys.argv) >=  5 :
+        if sys.argv[1] == "timelapse" and len(sys.argv) >=  8 :
             try :
                 fps = int(sys.argv[2])
                 video_time = int(sys.argv[3])
                 event_duration = int(sys.argv[4])
+                cam_idx = int(sys.argv[5])
+                height = int(sys.argv[6])
+                width = int(sys.argv[7])
             except :
-                print 'Usage %s timelapse fps(int) video_duration(int) event_duration(int)' % sys.argv[0]
+                print 'Usage %s timelapse fps(int) video_duration(int) event_duration(int) cam_idx height width' % sys.argv[0]
                 exit(1)
-            start_timelapse(fps,video_time,event_duration)
+            start_timelapse(fps,video_time,event_duration,cam_idx,height,width)
         else :
-            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int)' % sys.argv[0]
+            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int) cam_idx height width' % sys.argv[0]
     else :
-            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int)' % sys.argv[0]
-            print 'Usage %s preview' % sys.argv[0]
+            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int) cam_idx height width' % sys.argv[0]
+            print 'Usage %s preview cam_idx height width' % sys.argv[0]
 if __name__ == "__main__":
     main()

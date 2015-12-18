@@ -16,3 +16,6 @@
   how much time remaining, how much pictures it took and more stats for geeks
 
 - Need a parameter for quality and compression type
+
+- Need to check how it works on a windows system and fix it so it will run
+  with creating the film afterwards
