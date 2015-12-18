@@ -1,8 +1,7 @@
 import cv2
-
 import time
 import sys,os
-
+from optparse import OptionParser
 
 def init_cam(device_id,width,height):
     cam = cv2.VideoCapture(device_id)
@@ -60,32 +59,47 @@ def preview_cam(cam_idx,height,width):
 
 def main():
 
-    if len(sys.argv) > 1 :
-        if sys.argv[1] == "preview" :
-            if len(sys.argv) < 5:
-                print 'Usage %s preview camera_idx height width' % sys.argv[0]
-                exit(1)
-            cam_idx = int(sys.argv[2])
-            height = int(sys.argv[3])
-            width = int(sys.argv[4])
-            preview_cam(cam_idx,height,width)
-            
-        if sys.argv[1] == "timelapse" and len(sys.argv) >=  8 :
-            try :
-                fps = int(sys.argv[2])
-                video_time = int(sys.argv[3])
-                event_duration = int(sys.argv[4])
-                cam_idx = int(sys.argv[5])
-                height = int(sys.argv[6])
-                width = int(sys.argv[7])
-            except :
-                print 'Usage %s timelapse fps(int) video_duration(int) event_duration(int) cam_idx height width' % sys.argv[0]
-                exit(1)
-            start_timelapse(fps,video_time,event_duration,cam_idx,height,width)
-        else :
-            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int) cam_idx height width' % sys.argv[0]
-    else :
-            print 'Usage %s timelapse fps(int) video_time(int) event_duration(int) cam_idx height width' % sys.argv[0]
-            print 'Usage %s preview cam_idx height width' % sys.argv[0]
+    parser = OptionParser()
+
+    parser.add_option("-p", "--preview", dest="preview",
+                      default=False,
+                      help="Preview the camera")
+    parser.add_option("-t", "--timelapse",
+                      default=False,
+                      help="start taking pictures for the timelapse")
+    parser.add_option("-w", "--width",
+                      default=640,
+                      help="camera image width in pixels")
+    parser.add_option("-l", "--height",
+                      default=480,
+                      help="camera image height in pixels")
+    parser.add_option("-c", "--cam_idx",
+                      default=0,
+                      help="camera index")
+    parser.add_option("-f", "--fps",
+                      default=30,
+                      help="video output fps")
+    parser.add_option("-v", "--video-duration",
+                      default=10,
+                      help="output video duration")
+    parser.add_option("-e", "--event-duration",
+                      default=120,
+                      help="event duration (how much time the event is going to take)")
+
+
+    (options, args) = parser.parse_args()
+
+    cam_idx = int(options.cam_idx)
+    height = int(options.height)
+    width = int(options.width)
+    
+    if bool(options.preview):
+        preview_cam(cam_idx,height,width)
+    elif bool(options.timelapse):
+        fps = int(options.fps)
+        video_duration = int(options.video_duration)
+        event_duration = int(options.event_duration)
+        start_timelapse(fps,video_duration,event_duration,cam_idx,height,width)
+        
 if __name__ == "__main__":
     main()
