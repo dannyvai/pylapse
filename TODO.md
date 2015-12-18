@@ -15,7 +15,9 @@
 - Need a progress bar to show how much time it's working,
   how much time remaining, how much pictures it took and more stats for geeks
 
-- Need a parameter for quality and compression type
++ Need a parameter for quality
+
+- Need a parameter for compression type
 
 - Need to check how it works on a windows system and fix it so it will run
   with creating the film afterwards

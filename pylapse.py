@@ -17,18 +17,18 @@ def init_cam(device_id,width,height):
 #height - the image height in pixels
 #width - the image width in pixels
 #######
-def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_dir) :
+def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_dir,quality) :
 
     cam = init_cam(cam_idx,width,height)
     timelapse_sleep  = float(event_duration) /  float(fps * video_time) 
     idx = 1
     max_frame_id = event_duration / timelapse_sleep
-    image_name_format = "%s/%c0%dd.png" % (output_dir,'%',len(str(max_frame_id)))
+    image_name_format = "%s/%c0%dd.jpg" % (output_dir,'%',len(str(max_frame_id)))
     tic = time.time()
     while idx < max_frame_id:
         s, img_rgb = cam.read()
         img_name = image_name_format % idx
-        cv2.imwrite(img_name,img_rgb)
+        cv2.imwrite(img_name,img_rgb,[int(cv2.IMWRITE_JPEG_QUALITY), quality])
         time.sleep(timelapse_sleep)
         idx = idx + 1
 
@@ -89,7 +89,9 @@ def main():
     parser.add_option("-o", "--output-dir",
                       default='./',
                       help="the folder it would create the images and the video")
-
+    parser.add_option("-q", "--quality",
+                      default=90,
+                      help="image quality of the compression")
 
     (options, args) = parser.parse_args()
     
@@ -109,7 +111,8 @@ def main():
         fps = int(options.fps)
         video_duration = int(options.video_duration)
         event_duration = int(options.event_duration)
-        start_timelapse(fps,video_duration,event_duration,cam_idx,height,width,output_dir)
+        quality = int(options.quality)
+        start_timelapse(fps,video_duration,event_duration,cam_idx,height,width,output_dir,quality)
         
 if __name__ == "__main__":
     main()
