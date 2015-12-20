@@ -19,24 +19,46 @@ def init_cam(device_id,width,height):
 #######
 def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_dir,quality) :
 
+    #initiate the camera 
     cam = init_cam(cam_idx,width,height)
+    #determain how much time to sleep between every 2 frames 
+    #according to the event-duration,fps and video-time
     timelapse_sleep  = float(event_duration) /  float(fps * video_time) 
+
+    #the frame idx, how much frames has been captured
     idx = 1
-    max_frame_id = event_duration / timelapse_sleep
-    image_name_format = "%s/%c0%dd.jpg" % (output_dir,'%',len(str(max_frame_id)))
+    
+    #A timer for debug prints
     tic = time.time()
+    
+    #the maximum frame-id that we should capture
+    max_frame_id = event_duration / timelapse_sleep
+    
+    #the image name scheme
+    image_name_format = "%s/%c0%dd.jpg" % (output_dir,'%',len(str(max_frame_id)))
+    
     while idx < max_frame_id:
+        
+        #capture a photo from the camera
         s, img_rgb = cam.read()
+        
+        #embed the frame idx in the naming scheme
         img_name = image_name_format % idx
+        
+        #save the photo
         cv2.imwrite(img_name,img_rgb,[int(cv2.IMWRITE_JPEG_QUALITY), quality])
-        time.sleep(timelapse_sleep)
-        idx = idx + 1
+        
 
         #debug print to see some progress
         if time.time() - tic > 5:
             print 'created %d images out of %d' %(idx,max_frame_id)
             tic = time.time()
+
+            #sleep between 2 frames
+        time.sleep(timelapse_sleep)
             
+        idx = idx + 1            
+    #After finishing the capture loop we can start creating the timelapse
     os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p %s/%d.mp4' % (fps,image_name_format,output_dir,int(time.time())))
 
 def preview_cam(cam_idx,height,width):
@@ -45,14 +67,19 @@ def preview_cam(cam_idx,height,width):
     while(True):
         # Capture frame-by-frame
         ret, frame = cam.read()
-    
-        # Our operations on the frame come here
-        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    
-        # Display the resulting frame
-        cv2.imshow('frame',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        
+        #if we really got a frame
+        if ret:
+
+            # Our operations on the frame come here
+            #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+            # Display the resulting frame
+            cv2.imshow('frame',frame)
+            
+            #Check if we capture the q key we exit the program
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
     
     # When everything done, release the capture
     cam.release()
