@@ -40,24 +40,24 @@ def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_di
     while idx < max_frame_id:
         
         #capture a photo from the camera
-        s, img_rgb = cam.read()
-        
-        #embed the frame idx in the naming scheme
-        img_name = image_name_format % idx
-        
-        #save the photo
-        cv2.imwrite(img_name,img_rgb,[int(cv2.IMWRITE_JPEG_QUALITY), quality])
-        
-
-        #debug print to see some progress
-        if time.time() - tic > 5:
-            print 'created %d images out of %d' %(idx,max_frame_id)
-            tic = time.time()
-
-            #sleep between 2 frames
-        time.sleep(timelapse_sleep)
+        ret, img_rgb = cam.read()
+        if ret:
+            #embed the frame idx in the naming scheme
+            img_name = image_name_format % idx
             
-        idx = idx + 1            
+            #save the photo
+            cv2.imwrite(img_name,img_rgb,[int(cv2.IMWRITE_JPEG_QUALITY), quality])
+            
+    
+            #debug print to see some progress
+            if time.time() - tic > 5:
+                print 'created %d images out of %d' %(idx,max_frame_id)
+                tic = time.time()
+    
+                #sleep between 2 frames
+            time.sleep(timelapse_sleep)
+                
+            idx = idx + 1            
     #After finishing the capture loop we can start creating the timelapse
     os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p %s/%d.mp4' % (fps,image_name_format,output_dir,int(time.time())))
 
