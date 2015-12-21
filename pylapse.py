@@ -3,6 +3,13 @@ import time
 import sys,os
 from optparse import OptionParser
 
+#This is for detecting key press
+import platform
+if platform.system() == 'Windows':
+    import msvcrt
+else:
+    import select
+
 def init_cam(device_id,width,height):
     cam = cv2.VideoCapture(device_id)
     cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, width)
@@ -37,6 +44,7 @@ def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_di
     #the image name scheme
     image_name_format = "%s/%c0%dd.jpg" % (output_dir,'%',len(str(max_frame_id)))
     
+    key_pressed = None
     while idx < max_frame_id:
         
         #capture a photo from the camera
@@ -57,7 +65,22 @@ def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_di
                 #sleep between 2 frames
             time.sleep(timelapse_sleep)
                 
-            idx = idx + 1            
+            idx = idx + 1
+            if platform.system() == 'Windows':
+                if msvcrt.kbhit():
+                    key_pressed = msvcrt.getch().strip()
+                    print key_pressed
+            else:
+                i, o, e = select.select( [sys.stdin], [], [], 10 )
+
+                if (i):
+                  key_pressed =  sys.stdin.readline().strip()
+            
+            #If pressed q then stop filming and start making the video
+            if key_pressed == 'q':
+                break
+
+            
     #After finishing the capture loop we can start creating the timelapse
     os.system('ffmpeg -framerate %d -i %s -c:v libx264 -r 20 -pix_fmt yuv420p %s/%d.mp4' % (fps,image_name_format,output_dir,int(time.time())))
 

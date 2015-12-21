@@ -19,9 +19,9 @@
 
 - Need a parameter for compression type
 
-- Need to check how it works on a windows system and fix it so it will run
++ Need to check how it works on a windows system and fix it so it will run
   with creating the film afterwards
 
-- Need to add functionality to stop the timelapse...
++ Need to add functionality to stop the timelapse...
   capture some key press so that it can stop if the event stopped before
-  the time I thought it would take.
+  the time I thought it would take. (It's done with pressing q)

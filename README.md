@@ -46,4 +46,7 @@ notes:
 - for now it uses ffmpeg to create the video after taking all the pictures
   if you don't have it installed you can download it from :
   https://www.ffmpeg.org/download.html
+  
+- While taking the timelapse you can stop it by pressing q
+  that way it will stop taking pictures and start making the video
 
