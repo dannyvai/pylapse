@@ -71,11 +71,11 @@ def start_timelapse(fps,video_time,event_duration,cam_idx,height,width,output_di
                     key_pressed = msvcrt.getch().strip()
                     print key_pressed
             else:
-                i, o, e = select.select( [sys.stdin], [], [], 10 )
+                i, o, e = select.select( [sys.stdin], [], [], 0.1 )
 
                 if (i):
                   key_pressed =  sys.stdin.readline().strip()
-            
+                  print key_pressed
             #If pressed q then stop filming and start making the video
             if key_pressed == 'q':
                 break
