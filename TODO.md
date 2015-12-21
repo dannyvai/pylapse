@@ -25,3 +25,6 @@
 + Need to add functionality to stop the timelapse...
   capture some key press so that it can stop if the event stopped before
   the time I thought it would take. (It's done with pressing q)
+
+- In linux need to fix the select so it won't wait until the enter is pressed..
+  it should work like it's on windows
