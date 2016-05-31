@@ -5,15 +5,15 @@ Pylapse
 Create timelapse using opencv,ffmpeg and python
 
 Usage :
-- to see a preview of the camera that you set to take the timelapse:
-python pylapse.py --preview True
+* to see a preview of the camera that you set to take the timelapse:
+> python pylapse.py --preview True
 
 
-- to start a timelapse :
-python pylapse.py -t True
+* to start a timelapse :
+> python pylapse.py -t True
 
 for more help do python pylapse.py -h
-
+```
 Usage: pylapse.py [options]
 
 Options:
@@ -39,7 +39,7 @@ Options:
   -q QUALITY, --quality=QUALITY
                         image quality of the compression
 
-
+```
 notes:
 - for now it uses opencv to get the images from the camera
 
